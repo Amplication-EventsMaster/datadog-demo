@@ -30,6 +30,7 @@ export const CustomerCreate = (props: CreateProps): React.ReactElement => {
         <TextInput label="firstName" source="firstName" />
         <TextInput label="lastName" source="lastName" />
         <TextInput label="phone" source="phone" />
+        <TextInput label="phone2" source="phone2" />
         <ReferenceArrayInput
           source="reservations"
           reference="Reservation"

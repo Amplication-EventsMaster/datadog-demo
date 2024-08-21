@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { HotelModule } from "./hotel/hotel.module";
 import { RoomModule } from "./room/room.module";
-import { CustomerModule } from "./customer/customer.module";
 import { FeedbackModule } from "./feedback/feedback.module";
+import { CustomerModule } from "./customer/customer.module";
 import { ReservationModule } from "./reservation/reservation.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -18,8 +18,8 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
   imports: [
     HotelModule,
     RoomModule,
-    CustomerModule,
     FeedbackModule,
+    CustomerModule,
     ReservationModule,
     HealthModule,
     PrismaModule,

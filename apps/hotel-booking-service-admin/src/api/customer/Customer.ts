@@ -10,6 +10,7 @@ export type Customer = {
   id: string;
   lastName: string | null;
   phone: string | null;
+  phone2: string | null;
   reservations?: Array<Reservation>;
   updatedAt: Date;
 };

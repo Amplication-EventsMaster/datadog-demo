@@ -32,19 +32,6 @@ model Room {
   updatedAt    DateTime           @updatedAt
 }
 
-model Customer {
-  createdAt    DateTime      @default(now())
-  dateOfBirth  DateTime?
-  email        String?
-  feedbacks    Feedback[]
-  firstName    String?
-  id           String        @id @default(cuid())
-  lastName     String?
-  phone        String?
-  reservations Reservation[]
-  updatedAt    DateTime      @updatedAt
-}
-
 model Feedback {
   comment    String?
   createdAt  DateTime  @default(now())
@@ -55,6 +42,20 @@ model Feedback {
   id         String    @id @default(cuid())
   rating     Float?
   updatedAt  DateTime  @updatedAt
+}
+
+model Customer {
+  createdAt    DateTime      @default(now())
+  dateOfBirth  DateTime?
+  email        String?
+  feedbacks    Feedback[]
+  firstName    String?
+  id           String        @id @default(cuid())
+  lastName     String?
+  phone        String?
+  phone2       String?
+  reservations Reservation[]
+  updatedAt    DateTime      @updatedAt
 }
 
 model Reservation {

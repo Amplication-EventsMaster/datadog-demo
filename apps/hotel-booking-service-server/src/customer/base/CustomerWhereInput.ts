@@ -101,6 +101,17 @@ class CustomerWhereInput {
 
   @ApiProperty({
     required: false,
+    type: StringNullableFilter,
+  })
+  @Type(() => StringNullableFilter)
+  @IsOptional()
+  @Field(() => StringNullableFilter, {
+    nullable: true,
+  })
+  phone2?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
     type: () => ReservationListRelationFilter,
   })
   @ValidateNested()
