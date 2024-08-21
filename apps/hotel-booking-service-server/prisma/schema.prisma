@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Hotel {
+  address   String?
+  city      String?
+  country   String?
+  createdAt DateTime   @default(now())
+  feedbacks Feedback[]
+  id        String     @id @default(cuid())
+  name      String?
+  rating    Float?
+  rooms     Room[]
+  updatedAt DateTime   @updatedAt
+}
+
+model Room {
+  createdAt    DateTime           @default(now())
+  hotel        Hotel?             @relation(fields: [hotelId], references: [id])
+  hotelId      String?
+  id           String             @id @default(cuid())
+  numberField  String?
+  price        Float?
+  reservations Reservation[]
+  typeField    EnumRoomTypeField?
+  updatedAt    DateTime           @updatedAt
+}
+
+model Customer {
+  createdAt    DateTime      @default(now())
+  dateOfBirth  DateTime?
+  email        String?
+  feedbacks    Feedback[]
+  firstName    String?
+  id           String        @id @default(cuid())
+  lastName     String?
+  phone        String?
+  reservations Reservation[]
+  updatedAt    DateTime      @updatedAt
+}
+
+model Feedback {
+  comment    String?
+  createdAt  DateTime  @default(now())
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+  hotel      Hotel?    @relation(fields: [hotelId], references: [id])
+  hotelId    String?
+  id         String    @id @default(cuid())
+  rating     Float?
+  updatedAt  DateTime  @updatedAt
+}
+
+model Reservation {
+  checkInDate  DateTime?
+  checkOutDate DateTime?
+  createdAt    DateTime               @default(now())
+  customer     Customer?              @relation(fields: [customerId], references: [id])
+  customerId   String?
+  id           String                 @id @default(cuid())
+  room         Room?                  @relation(fields: [roomId], references: [id])
+  roomId       String?
+  status       EnumReservationStatus?
+  updatedAt    DateTime               @updatedAt
+}
+
+enum EnumRoomTypeField {
+  Option1
+}
+
+enum EnumReservationStatus {
+  Option1
+}
