@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Hotel } from "./Hotel";
 import { HotelCountArgs } from "./HotelCountArgs";
 import { HotelFindManyArgs } from "./HotelFindManyArgs";
@@ -25,10 +31,20 @@ import { Feedback } from "../../feedback/base/Feedback";
 import { RoomFindManyArgs } from "../../room/base/RoomFindManyArgs";
 import { Room } from "../../room/base/Room";
 import { HotelService } from "../hotel.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Hotel)
 export class HotelResolverBase {
-  constructor(protected readonly service: HotelService) {}
+  constructor(
+    protected readonly service: HotelService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "read",
+    possession: "any",
+  })
   async _hotelsMeta(
     @graphql.Args() args: HotelCountArgs
   ): Promise<MetaQueryPayload> {
@@ -38,12 +54,24 @@ export class HotelResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Hotel])
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "read",
+    possession: "any",
+  })
   async hotels(@graphql.Args() args: HotelFindManyArgs): Promise<Hotel[]> {
     return this.service.hotels(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Hotel, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "read",
+    possession: "own",
+  })
   async hotel(
     @graphql.Args() args: HotelFindUniqueArgs
   ): Promise<Hotel | null> {
@@ -54,7 +82,13 @@ export class HotelResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Hotel)
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "create",
+    possession: "any",
+  })
   async createHotel(@graphql.Args() args: CreateHotelArgs): Promise<Hotel> {
     return await this.service.createHotel({
       ...args,
@@ -62,7 +96,13 @@ export class HotelResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Hotel)
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "update",
+    possession: "any",
+  })
   async updateHotel(
     @graphql.Args() args: UpdateHotelArgs
   ): Promise<Hotel | null> {
@@ -82,6 +122,11 @@ export class HotelResolverBase {
   }
 
   @graphql.Mutation(() => Hotel)
+  @nestAccessControl.UseRoles({
+    resource: "Hotel",
+    action: "delete",
+    possession: "any",
+  })
   async deleteHotel(
     @graphql.Args() args: DeleteHotelArgs
   ): Promise<Hotel | null> {
@@ -97,7 +142,13 @@ export class HotelResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Feedback], { name: "feedbacks" })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "read",
+    possession: "any",
+  })
   async findFeedbacks(
     @graphql.Parent() parent: Hotel,
     @graphql.Args() args: FeedbackFindManyArgs
@@ -111,7 +162,13 @@ export class HotelResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Room], { name: "rooms" })
+  @nestAccessControl.UseRoles({
+    resource: "Room",
+    action: "read",
+    possession: "any",
+  })
   async findRooms(
     @graphql.Parent() parent: Hotel,
     @graphql.Args() args: RoomFindManyArgs

@@ -12,5 +12,6 @@ export type CustomerWhereInput = {
   id?: StringFilter;
   lastName?: StringNullableFilter;
   phone?: StringNullableFilter;
+  phone2?: StringNullableFilter;
   reservations?: ReservationListRelationFilter;
 };

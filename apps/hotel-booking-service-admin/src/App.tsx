@@ -13,18 +13,22 @@ import { RoomList } from "./room/RoomList";
 import { RoomCreate } from "./room/RoomCreate";
 import { RoomEdit } from "./room/RoomEdit";
 import { RoomShow } from "./room/RoomShow";
-import { CustomerList } from "./customer/CustomerList";
-import { CustomerCreate } from "./customer/CustomerCreate";
-import { CustomerEdit } from "./customer/CustomerEdit";
-import { CustomerShow } from "./customer/CustomerShow";
 import { FeedbackList } from "./feedback/FeedbackList";
 import { FeedbackCreate } from "./feedback/FeedbackCreate";
 import { FeedbackEdit } from "./feedback/FeedbackEdit";
 import { FeedbackShow } from "./feedback/FeedbackShow";
+import { CustomerList } from "./customer/CustomerList";
+import { CustomerCreate } from "./customer/CustomerCreate";
+import { CustomerEdit } from "./customer/CustomerEdit";
+import { CustomerShow } from "./customer/CustomerShow";
 import { ReservationList } from "./reservation/ReservationList";
 import { ReservationCreate } from "./reservation/ReservationCreate";
 import { ReservationEdit } from "./reservation/ReservationEdit";
 import { ReservationShow } from "./reservation/ReservationShow";
+import { UserList } from "./user/UserList";
+import { UserCreate } from "./user/UserCreate";
+import { UserEdit } from "./user/UserEdit";
+import { UserShow } from "./user/UserShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -66,13 +70,6 @@ const App = (): React.ReactElement => {
           show={RoomShow}
         />
         <Resource
-          name="Customer"
-          list={CustomerList}
-          edit={CustomerEdit}
-          create={CustomerCreate}
-          show={CustomerShow}
-        />
-        <Resource
           name="Feedback"
           list={FeedbackList}
           edit={FeedbackEdit}
@@ -80,11 +77,25 @@ const App = (): React.ReactElement => {
           show={FeedbackShow}
         />
         <Resource
+          name="Customer"
+          list={CustomerList}
+          edit={CustomerEdit}
+          create={CustomerCreate}
+          show={CustomerShow}
+        />
+        <Resource
           name="Reservation"
           list={ReservationList}
           edit={ReservationEdit}
           create={ReservationCreate}
           show={ReservationShow}
+        />
+        <Resource
+          name="User"
+          list={UserList}
+          edit={UserEdit}
+          create={UserCreate}
+          show={UserShow}
         />
       </Admin>
     </div>

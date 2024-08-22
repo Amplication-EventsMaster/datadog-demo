@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Customer } from "./Customer";
 import { CustomerCountArgs } from "./CustomerCountArgs";
 import { CustomerFindManyArgs } from "./CustomerFindManyArgs";
@@ -25,10 +31,20 @@ import { Feedback } from "../../feedback/base/Feedback";
 import { ReservationFindManyArgs } from "../../reservation/base/ReservationFindManyArgs";
 import { Reservation } from "../../reservation/base/Reservation";
 import { CustomerService } from "../customer.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Customer)
 export class CustomerResolverBase {
-  constructor(protected readonly service: CustomerService) {}
+  constructor(
+    protected readonly service: CustomerService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "read",
+    possession: "any",
+  })
   async _customersMeta(
     @graphql.Args() args: CustomerCountArgs
   ): Promise<MetaQueryPayload> {
@@ -38,14 +54,26 @@ export class CustomerResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Customer])
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "read",
+    possession: "any",
+  })
   async customers(
     @graphql.Args() args: CustomerFindManyArgs
   ): Promise<Customer[]> {
     return this.service.customers(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Customer, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "read",
+    possession: "own",
+  })
   async customer(
     @graphql.Args() args: CustomerFindUniqueArgs
   ): Promise<Customer | null> {
@@ -56,7 +84,13 @@ export class CustomerResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Customer)
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "create",
+    possession: "any",
+  })
   async createCustomer(
     @graphql.Args() args: CreateCustomerArgs
   ): Promise<Customer> {
@@ -66,7 +100,13 @@ export class CustomerResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Customer)
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "update",
+    possession: "any",
+  })
   async updateCustomer(
     @graphql.Args() args: UpdateCustomerArgs
   ): Promise<Customer | null> {
@@ -86,6 +126,11 @@ export class CustomerResolverBase {
   }
 
   @graphql.Mutation(() => Customer)
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "delete",
+    possession: "any",
+  })
   async deleteCustomer(
     @graphql.Args() args: DeleteCustomerArgs
   ): Promise<Customer | null> {
@@ -101,7 +146,13 @@ export class CustomerResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Feedback], { name: "feedbacks" })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "read",
+    possession: "any",
+  })
   async findFeedbacks(
     @graphql.Parent() parent: Customer,
     @graphql.Args() args: FeedbackFindManyArgs
@@ -115,7 +166,13 @@ export class CustomerResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Reservation], { name: "reservations" })
+  @nestAccessControl.UseRoles({
+    resource: "Reservation",
+    action: "read",
+    possession: "any",
+  })
   async findReservations(
     @graphql.Parent() parent: Customer,
     @graphql.Args() args: ReservationFindManyArgs
