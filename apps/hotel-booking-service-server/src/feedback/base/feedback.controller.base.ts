@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { FeedbackService } from "../feedback.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { FeedbackCreateInput } from "./FeedbackCreateInput";
 import { Feedback } from "./Feedback";
 import { FeedbackFindManyArgs } from "./FeedbackFindManyArgs";
 import { FeedbackWhereUniqueInput } from "./FeedbackWhereUniqueInput";
 import { FeedbackUpdateInput } from "./FeedbackUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class FeedbackControllerBase {
-  constructor(protected readonly service: FeedbackService) {}
+  constructor(
+    protected readonly service: FeedbackService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Feedback })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createFeedback(
     @common.Body() data: FeedbackCreateInput
   ): Promise<Feedback> {
@@ -69,9 +87,18 @@ export class FeedbackControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Feedback] })
   @ApiNestedQuery(FeedbackFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async feedbacks(@common.Req() request: Request): Promise<Feedback[]> {
     const args = plainToClass(FeedbackFindManyArgs, request.query);
     return this.service.feedbacks({
@@ -99,9 +126,18 @@ export class FeedbackControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Feedback })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async feedback(
     @common.Param() params: FeedbackWhereUniqueInput
   ): Promise<Feedback | null> {
@@ -136,9 +172,18 @@ export class FeedbackControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Feedback })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateFeedback(
     @common.Param() params: FeedbackWhereUniqueInput,
     @common.Body() data: FeedbackUpdateInput
@@ -195,6 +240,14 @@ export class FeedbackControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Feedback })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Feedback",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteFeedback(
     @common.Param() params: FeedbackWhereUniqueInput
   ): Promise<Feedback | null> {
